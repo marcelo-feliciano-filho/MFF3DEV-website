@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us | MFF3DEV</title>
+    <meta
+      name="description"
+      content="About Marcelo Feliciano Filho and the mission behind MFF3DEV LLC."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container nav">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>MFF3DEV LLC</span>
+        </a>
+        <nav class="nav-links">
+          <a href="./index.html#services">Services</a>
+          <a href="./index.html#focus">Niche</a>
+          <a href="./about.html">About</a>
+          <a href="./terms.html">Terms</a>
+        </nav>
+        <a class="btn btn-ghost" href="mailto:marcelo.feliciano.f@outlook.com">Contact Us</a>
+      </div>
+    </header>
+
+    <main class="content-page">
+      <div class="container content-wrap">
+        <span class="eyebrow">About Us</span>
+        <h1>Built by an engineer, designed for enterprise outcomes.</h1>
+        <p>
+          My name is Marcelo Feliciano Filho, and I am the founder of MFF3DEV LLC. After years of building
+          backend systems, cloud platforms, and AI-powered applications for global teams, I created MFF3DEV
+          to deliver enterprise-grade software engineering services with a clear focus: reliable AI backend
+          architecture and automation solutions that companies can trust in production.
+        </p>
+        <p>
+          Our journey started from practical execution: solving performance bottlenecks, integrating complex
+          data workflows, and transforming research-level AI ideas into real products. Today, MFF3DEV helps
+          clients structure robust systems using Python, Django/FastAPI, PostgreSQL, Docker, and modern AI
+          techniques such as RAG and MCP-driven integrations.
+        </p>
+        <p>
+          Founder highlights include technical leadership in large-scale AI initiatives, software engineering
+          delivery across international teams, and ongoing doctoral research in Artificial Intelligence at
+          PUCPR. For professional background and media/profile visibility, visit:
+          <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182" target="_blank" rel="noreferrer">Marcelo’s LinkedIn profile</a>.
+        </p>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container footer-grid">
+        <div>
+          <h4>MFF3DEV LLC</h4>
+          <p>Enterprise AI backend engineering and automation systems.</p>
+        </div>
+        <div>
+          <h4>Business Information</h4>
+          <ul>
+            <li>Company: MFF3DEV LLC</li>
+            <li>Address: St. Walace Landal, 220, Casa 09, Curitiba, PR, Brazil, 82460-720</li>
+            <li>Phone: +55 41 98868-5818</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="./terms.html">Terms & Conditions</a></li>
+            <li><a href="mailto:marcelo.feliciano.f@outlook.com">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container copyright">© <span id="year"></span> MFF3DEV LLC. All rights reserved.</div>
+    </footer>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
