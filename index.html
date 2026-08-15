@@ -25,6 +25,7 @@
         </a>
         <nav class="nav-links">
           <a href="#services">Services</a>
+          <a href="#portfolio">Portfolio</a>
           <a href="#focus">Niche</a>
           <a href="./about.html">About</a>
           <a href="./terms.html">Terms</a>
@@ -112,6 +113,60 @@
         </div>
       </section>
 
+      <section id="portfolio">
+        <div class="container">
+          <h2 class="section-title">Founder's Portfolio</h2>
+          <p class="section-subtitle">
+            Real projects, real results — from production AI pipelines to published research.
+          </p>
+          <div class="portfolio-teaser">
+            <div class="portfolio-preview">
+              <div class="portfolio-preview-header">
+                <span class="portfolio-tag">Senior Software Engineer · AI Systems · Python</span>
+              </div>
+              <h3>Marcelo Feliciano Filho</h3>
+              <p>
+                7 years building production backend systems and AI-driven applications.
+                Currently at BT on their NaaS platform. Previously Technical Team Lead at Turing,
+                shipping RAG pipelines and LLM tooling for healthcare clients.
+              </p>
+              <div class="portfolio-metrics">
+                <div class="portfolio-metric">
+                  <strong>↓ 70%</strong>
+                  <span>Hallucination reduction</span>
+                </div>
+                <div class="portfolio-metric">
+                  <strong>6–8</strong>
+                  <span>Engineers led</span>
+                </div>
+                <div class="portfolio-metric">
+                  <strong>↓ 95%</strong>
+                  <span>Pipeline time saved</span>
+                </div>
+                <div class="portfolio-metric">
+                  <strong>Published</strong>
+                  <span>EI2N 2026 · Springer LNCS</span>
+                </div>
+              </div>
+              <div class="portfolio-stack">
+                <span class="stack-tag">Python</span>
+                <span class="stack-tag">FastAPI</span>
+                <span class="stack-tag">RAG Pipelines</span>
+                <span class="stack-tag">MCP</span>
+                <span class="stack-tag">LangChain</span>
+                <span class="stack-tag">AWS ECS</span>
+                <span class="stack-tag">Docker</span>
+                <span class="stack-tag">pgvector</span>
+              </div>
+            </div>
+            <div class="portfolio-cta-block">
+              <p class="portfolio-cta-text">Explore full experience, projects, and technical depth</p>
+              <a class="btn btn-primary" href="./portfolio.html" id="portfolio-link">View Full Portfolio →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section>
         <div class="container two-col">
           <div class="panel">
@@ -141,6 +196,110 @@
       </section>
     </main>
 
+    <style>
+      /* Portfolio Teaser Section */
+      .portfolio-teaser {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 32px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+      .portfolio-teaser::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--accent));
+      }
+      .portfolio-preview-header {
+        margin-bottom: 12px;
+      }
+      .portfolio-tag {
+        display: inline-block;
+        padding: 5px 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--accent);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      }
+      .portfolio-preview h3 {
+        margin: 10px 0 8px;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      .portfolio-preview > p {
+        color: var(--muted);
+        max-width: 680px;
+        margin-bottom: 24px;
+      }
+      .portfolio-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .portfolio-metric {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .portfolio-metric strong {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .portfolio-metric span {
+        font-size: 0.78rem;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+      .portfolio-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 28px;
+      }
+      .stack-tag {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--muted);
+        font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      }
+      .portfolio-cta-block {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+      }
+      .portfolio-cta-text {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin: 0;
+        flex: 1;
+      }
+      @media (max-width: 930px) {
+        .portfolio-metrics { grid-template-columns: repeat(2, 1fr); }
+        .portfolio-cta-block { flex-direction: column; align-items: flex-start; }
+      }
+      @media (max-width: 540px) {
+        .portfolio-teaser { padding: 20px; }
+        .portfolio-metrics { grid-template-columns: repeat(2, 1fr); }
+      }
+    </style>
+
     <footer>
       <div class="container footer-grid">
         <div>
@@ -162,6 +321,7 @@
           <h4>Quick Links</h4>
           <ul>
             <li><a href="./about.html">About Us</a></li>
+            <li><a href="./portfolio.html">Portfolio</a></li>
             <li><a href="./terms.html">Terms & Conditions</a></li>
             <li><a href="mailto:marcelo.feliciano.f@outlook.com">Contact Us</a></li>
             <li><a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182" target="_blank" rel="noreferrer">LinkedIn</a></li>

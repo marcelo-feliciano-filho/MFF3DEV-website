@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio — Marcelo Feliciano Filho | MFF3DEV</title>
+    <meta
+      name="description"
+      content="Senior Software Engineer portfolio — AI backend systems, RAG pipelines, MCP, published research and 7 years of production experience."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      /* ── Portfolio-specific extras ───────────────────────────────── */
+      :root { --mono: 'IBM Plex Mono', 'Courier New', monospace; }
+
+      /* hero */
+      .pf-hero { padding: 100px 0 60px; }
+      .pf-eyebrow {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--accent);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 1.4rem;
+        padding: 5px 14px;
+        border: 1px solid rgba(22,214,201,0.25);
+        border-radius: 999px;
+      }
+      .pf-name {
+        font-size: clamp(2.4rem, 6vw, 4.2rem);
+        font-weight: 700;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+      }
+      .pf-name span { color: var(--accent); }
+      .pf-tagline {
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        color: var(--muted);
+        font-weight: 300;
+        max-width: 580px;
+        margin-bottom: 2.5rem;
+        line-height: 1.65;
+      }
+      .pf-metrics {
+        display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2.8rem;
+      }
+      .pf-metric { display: flex; flex-direction: column; gap: 4px; }
+      .pf-metric-val {
+        font-family: var(--mono);
+        font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1;
+      }
+      .pf-metric-label {
+        font-size: 0.72rem; color: var(--muted); letter-spacing: 0.07em; text-transform: uppercase;
+      }
+      /* subtle grid bg */
+      .pf-hero-inner { position: relative; }
+      .pf-hero-inner::before {
+        content: '';
+        position: absolute; inset: -60px -40px;
+        background-image:
+          linear-gradient(rgba(151,178,255,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(151,178,255,0.06) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(ellipse 70% 80% at 20% 50%, black 20%, transparent 100%);
+        pointer-events: none; z-index: 0;
+      }
+      .pf-hero-inner > * { position: relative; z-index: 1; }
+
+      /* sections */
+      .pf-section { padding: 56px 0; border-top: 1px solid rgba(255,255,255,0.06); }
+      .section-label {
+        font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+        letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px;
+      }
+      .pf-section .section-title { font-size: clamp(1.5rem, 3vw, 1.9rem); margin-bottom: 2.2rem; }
+
+      /* skills tags */
+      .skills-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+      .tag {
+        font-family: var(--mono); font-size: 0.72rem; padding: 5px 11px;
+        border: 1px solid var(--border); border-radius: 6px;
+        color: var(--muted); background: rgba(255,255,255,0.02); transition: all 0.15s;
+      }
+      .tag:hover { border-color: var(--accent); color: var(--accent); }
+      .tag-hot { border-color: rgba(22,214,201,0.3); color: var(--accent); background: rgba(22,214,201,0.04); }
+
+      /* timeline */
+      .timeline { position: relative; padding-left: 1.6rem; }
+      .timeline::before {
+        content: ''; position: absolute; left: 0; top: 8px; bottom: 0;
+        width: 1px; background: var(--border);
+      }
+      .tl-item { position: relative; margin-bottom: 3rem; }
+      .tl-item::before {
+        content: ''; position: absolute; left: -1.6rem; top: 8px;
+        width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 0 4px rgba(22,214,201,0.12);
+      }
+      .tl-period { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.05em; }
+      .tl-company { font-weight: 600; font-size: 1rem; color: var(--text); margin-bottom: 2px; }
+      .tl-role { font-size: 0.82rem; color: var(--accent); font-family: var(--mono); margin-bottom: 10px; }
+      .tl-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; max-width: 620px; }
+      .tl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+      /* project cards */
+      .projects-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.4rem;
+      }
+      .project-card {
+        background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+        padding: 1.5rem; transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+        position: relative; overflow: hidden;
+      }
+      .project-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--accent));
+        opacity: 0; transition: opacity 0.18s;
+      }
+      .project-card:hover { border-color: rgba(22,214,201,0.35); transform: translateY(-3px); box-shadow: 0 24px 48px rgba(0,0,0,0.35); }
+      .project-card:hover::before { opacity: 1; }
+      .project-num { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); margin-bottom: 0.8rem; opacity: 0.55; }
+      .project-name { font-weight: 600; font-size: 1rem; color: var(--text); margin-bottom: 0.5rem; line-height: 1.35; }
+      .project-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.65; margin-bottom: 1rem; }
+      .project-impact {
+        font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+        padding: 7px 11px; background: rgba(22,214,201,0.06); border: 1px solid rgba(22,214,201,0.18);
+        border-radius: 8px; margin-bottom: 1rem;
+      }
+      .project-link { font-size: 0.75rem; color: var(--muted); text-decoration: none; font-family: var(--mono); transition: color 0.12s; display: inline-block; margin-top: 4px; }
+      .project-link:hover { color: var(--accent); }
+
+      /* about */
+      .about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; }
+      .about-text { font-size: 0.9rem; color: var(--muted); line-height: 1.8; }
+      .about-text p { margin-bottom: 1rem; }
+      .about-text strong { color: var(--text); font-weight: 500; }
+      .about-stats { display: flex; flex-direction: column; gap: 0; }
+      .stat-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+      .stat-row:last-child { border-bottom: none; }
+      .stat-key { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+      .stat-val { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); text-align: right; }
+
+      /* contact */
+      .contact-block {
+        background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+        padding: 2.5rem; display: flex; flex-direction: column; align-items: flex-start;
+        gap: 1.2rem; box-shadow: var(--shadow);
+      }
+      .contact-line { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+      .contact-line a { color: var(--text); text-decoration: none; transition: color 0.15s; }
+      .contact-line a:hover { color: var(--accent); }
+
+      /* scroll reveal */
+      .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.55s, transform 0.55s; }
+      .reveal.visible { opacity: 1; transform: none; }
+
+      @media (max-width: 700px) {
+        .about-grid { grid-template-columns: 1fr; }
+        .pf-metrics { gap: 1.4rem; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- SHARED TOPBAR -->
+    <header class="topbar">
+      <div class="container nav">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>MFF3DEV LLC</span>
+        </a>
+        <nav class="nav-links">
+          <a href="./index.html#services">Services</a>
+          <a href="./index.html#portfolio">Portfolio</a>
+          <a href="./index.html#focus">Niche</a>
+          <a href="./about.html">About</a>
+          <a href="./terms.html">Terms</a>
+        </nav>
+        <a class="btn btn-ghost" href="mailto:marcelo.feliciano.f@outlook.com">Contact Us</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <div class="container pf-hero">
+        <div class="pf-hero-inner">
+          <p class="pf-eyebrow">// Senior Software Engineer · AI Systems · Python</p>
+          <h1 class="pf-name">Marcelo<br>Feliciano <span>Filho</span></h1>
+          <p class="pf-tagline">
+            I build production backend systems and AI-driven applications.
+            Currently at BT on their NaaS platform. Previously Technical Team Lead at Turing,
+            shipping RAG pipelines and LLM tooling for healthcare clients.
+          </p>
+          <div class="pf-metrics">
+            <div class="pf-metric">
+              <span class="pf-metric-val">7</span>
+              <span class="pf-metric-label">Years experience</span>
+            </div>
+            <div class="pf-metric">
+              <span class="pf-metric-val">70%</span>
+              <span class="pf-metric-label">Hallucination reduction</span>
+            </div>
+            <div class="pf-metric">
+              <span class="pf-metric-val">6–8</span>
+              <span class="pf-metric-label">Engineers led</span>
+            </div>
+            <div class="pf-metric">
+              <span class="pf-metric-val">95%</span>
+              <span class="pf-metric-label">Pipeline time saved</span>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-primary">View Projects</a>
+            <a href="mailto:marcelo.feliciano.f@outlook.com" class="btn btn-ghost">Get in Touch</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILLS -->
+      <section id="skills" class="pf-section reveal">
+        <div class="container">
+          <p class="section-label">// capabilities</p>
+          <h2 class="section-title">Technical Stack</h2>
+          <div class="skills-strip">
+            <span class="tag tag-hot">Python</span>
+            <span class="tag tag-hot">Django</span>
+            <span class="tag tag-hot">FastAPI</span>
+            <span class="tag tag-hot">PostgreSQL</span>
+            <span class="tag tag-hot">RAG Pipelines</span>
+            <span class="tag tag-hot">LangChain</span>
+            <span class="tag tag-hot">MCP</span>
+            <span class="tag tag-hot">LangFuse</span>
+            <span class="tag">Docker</span>
+            <span class="tag">AWS ECS</span>
+            <span class="tag">Kafka</span>
+            <span class="tag">Redis</span>
+            <span class="tag">Celery</span>
+            <span class="tag">pgvector</span>
+            <span class="tag">PyTorch</span>
+            <span class="tag">RAGAS</span>
+            <span class="tag">Pydantic v2</span>
+            <span class="tag">GitHub Actions</span>
+            <span class="tag">Vue 3</span>
+            <span class="tag">Stripe</span>
+            <span class="tag">sentence-transformers</span>
+            <span class="tag">Snowflake</span>
+            <span class="tag">MySQL</span>
+            <span class="tag">TDD</span>
+            <span class="tag">SOLID</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section id="projects" class="pf-section reveal">
+        <div class="container">
+          <p class="section-label">// featured work</p>
+          <h2 class="section-title">Projects</h2>
+          <div class="projects-grid">
+
+            <div class="project-card">
+              <p class="project-num">01</p>
+              <h3 class="project-name">Production RAG Pipeline — Healthcare AI</h3>
+              <p class="project-desc">
+                Architected an end-to-end agentic AI backend for a healthcare client at Turing.
+                Hybrid retrieval combining pgvector dense search with PostgreSQL full-text search,
+                merged via Reciprocal Rank Fusion, reranked with a cross-encoder, routed through
+                a Noisy Top-K MoE layer, and served via MCP over SSE transport.
+              </p>
+              <div class="project-impact">↓ 70% hallucination rate · ↑ 40% product feedback · deploy 2h → 30min</div>
+              <div class="tl-tags">
+                <span class="tag">FastAPI</span><span class="tag">pgvector</span>
+                <span class="tag">LangChain</span><span class="tag">MCP</span>
+                <span class="tag">LangFuse</span><span class="tag">RAGAS</span>
+                <span class="tag">AWS ECS</span>
+              </div>
+            </div>
+
+            <div class="project-card">
+              <p class="project-num">02</p>
+              <h3 class="project-name">V-JEPA — Industrial Robot Perception</h3>
+              <p class="project-desc">
+                Implemented Visual Joint-Embedding Predictive Architecture and VL-JEPA
+                for self-supervised kinematic phase discovery on a UR5 industrial robot.
+                Spatiotemporal ViT encoder, EMA target encoder (τ=0.996), zero-shot
+                vision-language alignment. Discovers 5 kinematic phases without any labels.
+                Published at EI2N 2026, IFAC/IFIP, Springer LNCS.
+              </p>
+              <div class="project-impact">Published · EI2N 2026 · Springer LNCS · Open source</div>
+              <div class="tl-tags">
+                <span class="tag">PyTorch</span><span class="tag">ViT</span>
+                <span class="tag">Docker</span><span class="tag">Self-supervised</span>
+              </div>
+              <a href="https://github.com/marcelo-feliciano-filho" class="project-link" target="_blank" rel="noreferrer">→ github.com/marcelo-feliciano-filho</a>
+            </div>
+
+            <div class="project-card">
+              <p class="project-num">03</p>
+              <h3 class="project-name">Learning App — AI Coding Platform</h3>
+              <p class="project-desc">
+                Duolingo-style coding learning platform with AI tutoring, Google SSO, and
+                Stripe subscription billing. Django 5 REST API, Vue 3 SPA, pgvector RAG pipeline,
+                Noisy Top-K MoE query routing, and MCP server integration.
+                One-command Docker stack.
+              </p>
+              <div class="project-impact">Open source · Production stack · Fully documented</div>
+              <div class="tl-tags">
+                <span class="tag">Django 5</span><span class="tag">Vue 3</span>
+                <span class="tag">Stripe</span><span class="tag">RAG</span>
+                <span class="tag">MoE</span><span class="tag">Docker</span>
+              </div>
+              <a href="https://github.com/marcelo-feliciano-filho/Learning_App" class="project-link" target="_blank" rel="noreferrer">→ github.com/marcelo-feliciano-filho/Learning_App</a>
+            </div>
+
+            <div class="project-card">
+              <p class="project-num">04</p>
+              <h3 class="project-name">Document Pipeline Overhaul — A1 Engenharia</h3>
+              <p class="project-desc">
+                Re-architected a synchronous document registration and comparison system
+                into an async Celery + Redis worker pipeline. Replaced O(n²) string diffing
+                with a two-pass difflib pre-filter. Bulk DB writes replaced 80 sequential INSERTs.
+              </p>
+              <div class="project-impact">↓ 95% registration time · ↓ 80% comparison time</div>
+              <div class="tl-tags">
+                <span class="tag">Django</span><span class="tag">Celery</span>
+                <span class="tag">Redis</span><span class="tag">MySQL</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section id="experience" class="pf-section reveal">
+        <div class="container">
+          <p class="section-label">// career</p>
+          <h2 class="section-title">Experience</h2>
+          <div class="timeline">
+
+            <div class="tl-item">
+              <p class="tl-period">Sep 2025 — Present</p>
+              <p class="tl-company">BT (British Telecommunications) · Remote, London UK</p>
+              <p class="tl-role">Senior Software Engineer</p>
+              <p class="tl-desc">Diagnosing and resolving production issues on BT's NaaS platform — idempotency failures, throughput bottlenecks, and SOAK testing against real field devices under sustained load on high-availability telecom infrastructure.</p>
+              <div class="tl-tags"><span class="tag">Python</span><span class="tag">Distributed Systems</span><span class="tag">NaaS</span><span class="tag">SOAK Testing</span></div>
+            </div>
+
+            <div class="tl-item">
+              <p class="tl-period">Dec 2023 — Sep 2025</p>
+              <p class="tl-company">Turing · Remote, Los Angeles CA</p>
+              <p class="tl-role">Technical Team Lead</p>
+              <p class="tl-desc">Led 6-8 remote engineers building an AI-first healthcare platform. Architected the full RAG pipeline, MCP server tooling, and MoE query routing. Owned architecture decisions, code reviews, sprint planning, and delivery. 70% coding, 30% leadership.</p>
+              <div class="tl-tags"><span class="tag">Python</span><span class="tag">FastAPI</span><span class="tag">RAG</span><span class="tag">MCP</span><span class="tag">AWS</span><span class="tag">LangFuse</span></div>
+            </div>
+
+            <div class="tl-item">
+              <p class="tl-period">Aug 2022 — Dec 2023</p>
+              <p class="tl-company">Turing · Remote, Los Angeles CA</p>
+              <p class="tl-role">Senior Software Engineer</p>
+              <p class="tl-desc">Multi-client backend delivery across Django/FastAPI, Snowflake, PostgreSQL, and AWS. Frontend integration with Angular.js and Vue.js. Architecture decisions in cloud-native environments.</p>
+              <div class="tl-tags"><span class="tag">Django</span><span class="tag">FastAPI</span><span class="tag">Snowflake</span><span class="tag">AWS</span><span class="tag">Vue.js</span></div>
+            </div>
+
+            <div class="tl-item">
+              <p class="tl-period">Apr 2022 — Jan 2023</p>
+              <p class="tl-company">Dayway</p>
+              <p class="tl-role">Software Engineering Specialist</p>
+              <p class="tl-desc">Replaced a Ruby on Rails route-lookup system with a Django backend and real logistic regression ML models. Ran both systems in parallel during migration, gradually shifting traffic as the new models proved themselves.</p>
+              <div class="tl-tags"><span class="tag">Django</span><span class="tag">PostgreSQL</span><span class="tag">ML</span><span class="tag">CI/CD</span></div>
+            </div>
+
+            <div class="tl-item">
+              <p class="tl-period">Sep 2021 — Apr 2022</p>
+              <p class="tl-company">LACTEC · Curitiba, Brazil</p>
+              <p class="tl-role">Senior Software Developer</p>
+              <p class="tl-desc">Built an EV charging platform from scratch — Django, PostgreSQL, Angular 12, Docker, AWS S3, Stripe. Sprint planning, code reviews, SOLID principles.</p>
+              <div class="tl-tags"><span class="tag">Django</span><span class="tag">Angular</span><span class="tag">Stripe</span><span class="tag">AWS</span><span class="tag">Docker</span></div>
+            </div>
+
+            <div class="tl-item">
+              <p class="tl-period">Aug 2019 — Aug 2021</p>
+              <p class="tl-company">A1 Engenharia · Araucária, Brazil</p>
+              <p class="tl-role">Junior → Software Developer II</p>
+              <p class="tl-desc">Promoted twice in 18 months. Led performance overhaul of an AI document pipeline — 95% registration time reduction and 80% comparison time reduction via async Celery + Redis architecture and algorithmic optimisation.</p>
+              <div class="tl-tags"><span class="tag">Django</span><span class="tag">MySQL</span><span class="tag">Celery</span><span class="tag">TDD</span></div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="pf-section reveal">
+        <div class="container">
+          <p class="section-label">// background</p>
+          <h2 class="section-title">About</h2>
+          <div class="about-grid">
+            <div class="about-text">
+              <p>Software engineer with 7 years of production experience building backend systems and AI-driven applications in Python. I started in <strong>control and automation engineering</strong> — which gave me a systems thinking foundation I still use daily: analyse constraints before proposing solutions, design for failure modes, prefer practical tests over theoretical debates.</p>
+              <p>My career has moved from classic Django backends through multi-client SaaS platforms to production AI systems. At Turing I spent nearly two years at the intersection of backend engineering and applied AI — building RAG pipelines, MCP servers, and MoE routing layers that shipped to real healthcare users.</p>
+              <p>I lead teams while staying hands-on in the codebase. At Turing that was 70% coding, 30% technical direction, code reviews, and unblocking engineers. I think staying hands-on is what makes technical leadership actually work.</p>
+            </div>
+            <div class="about-stats">
+              <div class="stat-row"><span class="stat-key">Location</span><span class="stat-val">Curitiba, Brazil</span></div>
+              <div class="stat-row"><span class="stat-key">Experience</span><span class="stat-val">7 years professional</span></div>
+              <div class="stat-row"><span class="stat-key">Primary language</span><span class="stat-val">Python</span></div>
+              <div class="stat-row"><span class="stat-key">Current role</span><span class="stat-val">Sr. SWE @ BT</span></div>
+              <div class="stat-row"><span class="stat-key">Education</span><span class="stat-val">BE Control &amp; Automation · MEng Systems Eng</span></div>
+              <div class="stat-row"><span class="stat-key">Languages</span><span class="stat-val">Portuguese · English · French</span></div>
+              <div class="stat-row"><span class="stat-key">Availability</span><span class="stat-val">Open to remote roles</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" class="pf-section reveal">
+        <div class="container">
+          <p class="section-label">// get in touch</p>
+          <h2 class="section-title">Contact</h2>
+          <div class="contact-block">
+            <p class="contact-line">email → <a href="mailto:marcelo.feliciano.f@outlook.com">marcelo.feliciano.f@outlook.com</a></p>
+            <p class="contact-line">phone → <a href="tel:+5541988685818">+55 41 98868-5818</a></p>
+            <p class="contact-line">github → <a href="https://github.com/marcelo-feliciano-filho" target="_blank" rel="noreferrer">github.com/marcelo-feliciano-filho</a></p>
+            <p class="contact-line">linkedin → <a href="https://linkedin.com/in/marcelo-feliciano-filho-731504182" target="_blank" rel="noreferrer">linkedin.com/in/marcelo-feliciano-filho</a></p>
+            <a href="mailto:marcelo.feliciano.f@outlook.com" class="btn btn-primary">Send a message</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- SHARED FOOTER -->
+    <footer>
+      <div class="container footer-grid">
+        <div>
+          <h4>MFF3DEV LLC</h4>
+          <p>
+            Enterprise AI backend engineering and automation systems for companies that need resilient,
+            high-performance software.
+          </p>
+        </div>
+        <div>
+          <h4>Business Information</h4>
+          <ul>
+            <li>Company: MFF3DEV LLC</li>
+            <li>Address: Curitiba, PR, Brazil</li>
+            <li>Phone: +55 41 98868-5818</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="./about.html">About Us</a></li>
+            <li><a href="./terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="mailto:marcelo.feliciano.f@outlook.com">Contact Us</a></li>
+            <li><a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182" target="_blank" rel="noreferrer">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container copyright">
+        © <span id="year"></span> MFF3DEV LLC · Marcelo Feliciano Filho. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+      const observer = new IntersectionObserver(
+        entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+        { threshold: 0.08 }
+      );
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+  </body>
+</html>
