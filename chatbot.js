@@ -1,117 +1,269 @@
 /* ─────────────────────────────────────────────────────────────
-   MFF3DEV Recruiter Chatbot — pure JS, no backend, no API key
+   MFF3DEV Recruiter Chatbot — Intelligent Matcher & Knowledge Base
    ───────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
 
-  /* ── Knowledge base ──────────────────────────────────────── */
-  const KB = [
+  /* ── Guardrails for out-of-scope / personal questions ───── */
+  const GUARDRAIL_REGEX = /\b(gay|sexuality|sexual|dating|date|married|marriage|single|relationship|cheating|cheat|wife|husband|girlfriend|boyfriend|lover|religion|religious|god|politics|political|party|president|vote|gossip|rumor|scandal)\b/i;
+  const GUARDRAIL_ANSWER = `I am Marcelo's professional AI assistant. I focus exclusively on his software engineering background, technical stack, architecture experience, and role availability.<br><br>Feel free to ask about his <strong>7+ years of backend experience</strong>, <strong>production RAG & AI systems</strong>, <strong>W2 contract availability</strong>, or <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot);font-weight:600">book a call directly on Calendly →</a>`;
+
+  /* ── Knowledge Base with Weighted Intent Rules ──────────── */
+  const INTENTS = [
+    // 1. WHATSAPP DIRECT
     {
-      patterns: ['who are you', 'tell me about yourself', 'introduce yourself', 'about marcelo', 'who is marcelo', 'background'],
-      answer: `Hi! I'm the assistant for <strong>Marcelo Feliciano Filho</strong> — a Senior Software Engineer with <strong>7+ years of production experience</strong>.<br><br>Marcelo specialises in <strong>Python backend systems</strong>, <strong>AI/RAG pipelines</strong>, and <strong>cloud-native architecture</strong>. Currently working at <strong>BT (British Telecom)</strong> on their NaaS platform. Previously Technical Team Lead at Turing, leading 6–8 engineers on a healthcare AI platform.<br><br>He is available for <strong>W2 contracts</strong>, direct-hire remote roles, and consulting engagements.`
+      id: 'whatsapp',
+      phrases: ['whatsapp', 'whats app', 'zap', 'phone number', 'phone', 'text him', 'whatsapp link'],
+      regexes: [/\bwhats?app\b/i, /\b(phone|cell|mobile)\b/i],
+      answer: `You can reach Marcelo directly on WhatsApp:<br><br>💬 <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot);font-weight:600;font-size:0.92rem;">Open WhatsApp Chat (+55 41 98868-5818) →</a><br><br>He usually responds within a few hours.`
     },
+
+    // 2. LINKEDIN DIRECT
     {
-      patterns: ['current role', 'current job', 'where does he work', 'working now', 'bt ', 'british telecom', 'naas'],
-      answer: `Marcelo is currently a <strong>Senior Software Engineer at BT (British Telecommunications)</strong>, working remotely on their NaaS (Network as a Service) platform.<br><br>His focus there includes diagnosing and resolving production issues — idempotency failures, throughput bottlenecks, and SOAK testing against real field devices under sustained load on high-availability telecom infrastructure.`
+      id: 'linkedin',
+      phrases: ['linkedin', 'linkedin profile', 'linkedin link', 'connect on linkedin'],
+      regexes: [/\blinkedin\b/i],
+      answer: `Connect with Marcelo on LinkedIn:<br><br>💼 <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot);font-weight:600;font-size:0.92rem;">linkedin.com/in/marcelo-feliciano-filho →</a><br><br>Active daily for recruiter inquiries and engineering leadership discussions.`
     },
+
+    // 3. CALENDLY / SCHEDULE / INTERVIEW
     {
-      patterns: ['experience', 'years', 'how long', 'career', 'history', 'worked'],
-      answer: `Marcelo has <strong>7+ years of professional software engineering experience</strong>:<br><br>• <strong>BT</strong> — Sr. Software Engineer (present, ~1 year)<br>• <strong>Turing</strong> — Technical Team Lead (~2 years)<br>• <strong>Turing</strong> — Senior Software Engineer (~1.5 years)<br>• <strong>Dayway</strong> — Software Engineering Specialist (~1 year)<br>• <strong>LACTEC</strong> — Senior Software Developer (~7 months)<br>• <strong>A1 Engenharia</strong> — Junior → Developer II (~2 years)<br><br>He was promoted twice in 18 months at his first job.`
+      id: 'calendly',
+      phrases: ['book a call', 'schedule', 'calendly', 'interview', 'meeting', 'set up a call', 'talk to him', 'call him', 'calendar', 'availability this week', 'available this week', 'schedule interview'],
+      regexes: [/\b(calendly|schedule|booking|book a call|set up a (call|meeting)|schedule an? (interview|call|meeting))\b/i],
+      answer: `You can schedule an introductory call or interview directly on Marcelo's calendar:<br><br>📅 <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot);font-weight:600;font-size:0.92rem;">Book a Call on Calendly →</a><br><br>Select a time that works best across US or European timezones.`
     },
+
+    // 4. AVAILABILITY / W2 / CONTRACT / ROLES
     {
-      patterns: ['skills', 'tech stack', 'technologies', 'programming', 'tools', 'what can he do', 'expertise', 'python', 'django', 'fastapi', 'vue'],
-      answer: `Marcelo's core stack:<br><br><strong>🔥 Primary:</strong> Python · Django · FastAPI · PostgreSQL · RAG Pipelines · LangChain · MCP · LangFuse<br><br><strong>⚙️ Infrastructure:</strong> Docker · AWS ECS · GitHub Actions · Kafka · Redis · Celery<br><br><strong>🤖 AI/ML:</strong> pgvector · PyTorch · RAGAS · sentence-transformers · Pydantic v2<br><br><strong>🌐 Frontend:</strong> Vue 3<br><br><strong>🗄️ Databases:</strong> PostgreSQL · MySQL · Snowflake<br><br>Practices: TDD · SOLID · CI/CD · Clean Architecture`
+      id: 'availability',
+      phrases: [
+        'available', 'availability', 'open to', 'open for', 'new roles', 'new opportunities',
+        'looking for a job', 'looking for roles', 'hire him', 'hiring', 'w2', 'w-2', 'contract',
+        'c2c', '1099', 'b2b', 'freelance', 'relocate', 'relocation', 'remote work', 'notice period',
+        'start date', 'when can he start'
+      ],
+      regexes: [
+        /\b(availab(le|ility)|open (to|for)|new (roles?|opportunities|positions?|jobs?)|hir(e|ing)|w2|w-2|1099|c2c|b2b|contract(ing|or)?|notice period|start date)\b/i
+      ],
+      answer: `Marcelo is <strong>currently available for W2 contracts, direct-hire remote roles, and B2B engagements</strong> globally.<br><br>• <strong>Location:</strong> Fully remote from Curitiba, Brazil (UTC-3), with extensive overlap for US (EST/PST) and UK/Europe.<br>• <strong>Engagement:</strong> W2 contract, 1099, C2C / B2B through MFF3DEV LLC, or permanent remote.<br>• <strong>Notice:</strong> Immediate or standard flexible transition.<br><br>👉 <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot);font-weight:600">Schedule an introductory call on Calendly →</a> or reach out on <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a>.`
     },
+
+    // 5. RESUME / CV DOWNLOAD
     {
-      patterns: ['rag', 'retrieval', 'llm', 'ai', 'machine learning', 'artificial intelligence', 'langchain', 'vector', 'embedding'],
-      answer: `AI/RAG is one of Marcelo's strongest areas. He architected a <strong>production RAG pipeline for a healthcare client</strong> at Turing:<br><br>• Hybrid retrieval: <strong>pgvector dense search + PostgreSQL full-text search</strong><br>• Merged via <strong>Reciprocal Rank Fusion</strong>, reranked with a cross-encoder<br>• Routed through a <strong>Noisy Top-K MoE</strong> layer<br>• Served via <strong>MCP over SSE transport</strong><br>• Observed with <strong>LangFuse + RAGAS</strong><br><br>Result: ↓ 70% hallucination rate, ↑ 40% product feedback, deploy time 2h → 30min.`
+      id: 'resume',
+      phrases: ['resume', 'cv', 'curriculum', 'download cv', 'download resume', 'pdf cv', 'pdf resume', 'send resume'],
+      regexes: [/\b(resume|cv|curriculum(\s*vitae)?)\b/i],
+      answer: `You can download Marcelo's full CV here:<br><br>📄 <a href="./resume.pdf" download style="color:var(--accent-bot);font-weight:600;font-size:0.92rem;">⬇ Download Marcelo's Resume (PDF)</a><br><br>Includes complete 7+ year work history, technical stack, published research, and enterprise accomplishments.`
     },
+
+    // 6. RAG / AI / LLM / MACHINE LEARNING
     {
-      patterns: ['mcp', 'model context protocol', 'agent', 'agentic'],
-      answer: `Marcelo has deep hands-on experience with <strong>MCP (Model Context Protocol)</strong> — he built custom MCP servers and tooling for a production healthcare AI platform, serving over SSE transport as part of an agentic RAG system.<br><br>MFF3DEV LLC also offers MCP integration as a professional service.`
+      id: 'rag_ai',
+      phrases: [
+        'rag', 'retrieval augmented generation', 'llm', 'large language model', 'generative ai',
+        'langchain', 'vector database', 'pgvector', 'embeddings', 'langfuse', 'ragas', 'moe',
+        'mixture of experts', 'semantic search', 'fine tuning', 'pytorch', 'ai pipeline', 'agentic ai', 'ai agents'
+      ],
+      regexes: [
+        /\b(rag|llms?|pgvector|langchain|langfuse|ragas|vector\s*db|embeddings?|semantic search|mixture of experts|moe|pytorch|generative ai)\b/i,
+        /\b(ai|artificial intelligence)\b/i
+      ],
+      answer: `AI & RAG systems are one of Marcelo's deepest specializations. At Turing, he architected a <strong>production RAG platform for a healthcare client</strong>:<br><br>• <strong>Hybrid Retrieval:</strong> pgvector dense search + PostgreSQL full-text search combined via Reciprocal Rank Fusion (RRF)<br>• <strong>Reranking & Routing:</strong> Cross-encoder reranking routed through a Noisy Top-K Mixture of Experts (MoE) layer<br>• <strong>Agent Protocol:</strong> Served via MCP (Model Context Protocol) over SSE transport<br>• <strong>Evaluation:</strong> Continuous observability and metric scoring using LangFuse + RAGAS<br><br><strong>Outcome:</strong> ↓ 70% hallucination rate, ↑ 40% user satisfaction, deployment time cut from 2h → 30min.`
     },
+
+    // 7. MCP (MODEL CONTEXT PROTOCOL)
     {
-      patterns: ['project', 'built', 'portfolio', 'work', 'example', 'showcase', 'site', 'website'],
-      answer: `Marcelo's key projects:<br><br><strong>01 · Production RAG Pipeline</strong> — Healthcare AI backend with hybrid retrieval, MoE routing, MCP. ↓70% hallucinations.<br><br><strong>02 · V-JEPA Robot Perception</strong> — Self-supervised kinematic phase discovery on a UR5 robot. <em>Published at EI2N 2026 / Springer LNCS.</em><br><br><strong>03 · Learning App</strong> — Duolingo-style AI coding platform: Django 5 · Vue 3 · Stripe · RAG · MoE · Docker. Open source.<br><br><strong>04 · Document Pipeline Overhaul</strong> — Async Celery+Redis pipeline, ↓95% registration time.<br><br>🌐 <a href="https://marcelo-feliciano-filho.github.io/MFF3DEV-website/portfolio.html" target="_blank" style="color:var(--accent-bot)">View full portfolio →</a>`
+      id: 'mcp',
+      phrases: ['mcp', 'model context protocol', 'mcp server', 'mcp tools', 'anthropic mcp', 'tool use', 'function calling'],
+      regexes: [/\bmcp\b/i, /\bmodel context protocol\b/i],
+      answer: `Marcelo has deep production experience with <strong>MCP (Model Context Protocol)</strong>:<br><br>• Built custom MCP servers and modular toolsets for agentic enterprise AI workflows<br>• Implemented real-time streaming transports over Server-Sent Events (SSE)<br>• Integrates MCP tooling into enterprise backends via MFF3DEV LLC consulting.<br><br>Check out his work in the <a href="./portfolio.html" style="color:var(--accent-bot)">portfolio section →</a>`
     },
+
+    // 8. TECH STACK & SKILLS
     {
-      patterns: ['publication', 'research', 'paper', 'academic', 'published', 'jepa', 'springer', 'ei2n', 'robot'],
-      answer: `Marcelo published research at <strong>EI2N 2026 (IFAC/IFIP, Springer LNCS)</strong>:<br><br><em>"V-JEPA for Self-Supervised Industrial Robot Perception"</em> — spatiotemporal ViT encoder, EMA target encoding (τ=0.996). Discovers 5 kinematic phases with <strong>zero labels</strong>.<br><br>Open source on <a href="https://github.com/marcelo-feliciano-filho" target="_blank" style="color:var(--accent-bot)">GitHub →</a>`
+      id: 'skills',
+      phrases: [
+        'skills', 'tech stack', 'technologies', 'programming language', 'languages',
+        'frameworks', 'what stack', 'python', 'fastapi', 'django', 'postgresql', 'postgres',
+        'redis', 'celery', 'kafka', 'docker', 'aws', 'vue', 'snowflake', 'mysql', 'backend stack'
+      ],
+      regexes: [
+        /\b(skills?|tech\s*stack|technolog(y|ies)|frameworks?|languages?|backend)\b/i,
+        /\b(python|django|fastapi|postgres(ql)?|redis|celery|kafka|docker|aws|snowflake|mysql|pydantic|vue)\b/i
+      ],
+      answer: `Marcelo's core technical stack:<br><br>• <strong>Languages & Frameworks:</strong> Python, FastAPI, Django, Pydantic v2, Vue 3, SQL<br>• <strong>AI & RAG:</strong> pgvector, LangChain, MCP, LangFuse, RAGAS, sentence-transformers, PyTorch<br>• <strong>Databases & Storage:</strong> PostgreSQL, MySQL, Snowflake, Redis, AWS S3<br>• <strong>Infra & Messaging:</strong> Docker, AWS ECS, GitHub Actions CI/CD, Celery, Kafka<br>• <strong>Practices:</strong> TDD (Test-Driven Development), SOLID architecture, microservices, async pipelines.`
     },
+
+    // 9. CURRENT ROLE & BT (BRITISH TELECOM)
     {
-      patterns: ['available', 'availability', 'open to', 'hire', 'hiring', 'opportunity', 'remote', 'relocate', 'freelance', 'w2', 'contract', 'b2b', 'c2c', 'full-time'],
-      answer: `Marcelo is <strong>available for W2 contracts, direct remote full-time positions, and B2B engagements</strong> globally.<br><br>He works fully remote from Curitiba, Brazil (UTC-3) with extensive experience leading and delivering for US and UK teams.<br><br>You can book a call directly: <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot)">📅 Calendly</a> — or reach out via <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a> or <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a>.`
+      id: 'current_role',
+      phrases: ['current role', 'current job', 'where does he work', 'working now', 'bt', 'british telecom', 'naas', 'present role'],
+      regexes: [/\b(current\s*(role|job|company)|working now|where (does he|is he) work|bt|british tele(com|communications)|naas)\b/i],
+      answer: `Marcelo is currently a <strong>Senior Software Engineer at BT (British Telecommunications)</strong>, working remotely on their NaaS (Network as a Service) platform.<br><br>• Focus: diagnosing and resolving high-throughput production bottlenecks, SOAK testing against field devices under sustained load, and ensuring high idempotency and reliability across telecom systems.`
     },
+
+    // 10. OVERALL EXPERIENCE & CAREER HISTORY
     {
-      patterns: ['location', 'where', 'based', 'timezone', 'brazil', 'curitiba'],
-      answer: `Marcelo is based in <strong>Curitiba, Paraná, Brazil</strong> — UTC-3.<br><br>He works fully remote and has been delivering for clients in the <strong>US and UK</strong> for several years, with no timezone issues.`
+      id: 'experience',
+      phrases: ['experience', 'years of experience', 'how many years', 'career history', 'work history', 'background', 'turing', 'past companies', 'dayway', 'lactec', 'a1 engenharia'],
+      regexes: [/\b(years\s*of\s*experience|work\s*history|career|track\s*record|turing|dayway|lactec|a1 engenharia)\b/i],
+      answer: `Marcelo brings <strong>7+ years of production software engineering experience</strong> (9+ years engineering & research):<br><br>• <strong>BT</strong> — Senior Software Engineer (Present, ~1 year)<br>• <strong>Turing</strong> — Technical Team Lead (~2 years) · Led 6–8 engineers on AI healthcare platform<br>• <strong>Turing</strong> — Senior Software Engineer (~1.5 years) · Multi-client Python/cloud delivery<br>• <strong>Dayway</strong> — Software Engineering Specialist (~1 year) · Migration to Django + ML<br>• <strong>LACTEC</strong> — Senior Software Developer (~7 months) · EV charging platform from scratch<br>• <strong>A1 Engenharia</strong> — Junior → Developer II (~2 years) · Async pipeline overhaul (promoted twice in 18 months).`
     },
+
+    // 11. KEY PROJECTS & PORTFOLIO
     {
-      patterns: ['education', 'degree', 'university', 'study', 'graduated'],
-      answer: `Marcelo holds two engineering degrees:<br><br>• <strong>BE in Control & Automation Engineering</strong><br>• <strong>MEng in Systems Engineering</strong><br><br>His engineering background gives him a systems-thinking approach: design for failure modes, analyse constraints before coding.`
+      id: 'projects',
+      phrases: ['projects', 'key projects', 'what has he built', 'portfolio', 'showcase', 'built', 'learning app', 'v-jepa', 'vjepa', 'robotics'],
+      regexes: [/\b(projects?|portfolio|what (has he|did he) (build|built|create|make)|learning\s*app|v-?jepa)\b/i],
+      answer: `Featured Projects & Architecture:<br><br><strong>01 · Production Healthcare RAG Pipeline</strong> — Hybrid pgvector search, cross-encoder reranking, MoE routing, MCP server. ↓70% hallucinations.<br><br><strong>02 · V-JEPA Industrial Robot Perception</strong> — Self-supervised vision-language model on a UR5 robot. <em>Published at EI2N 2026 / Springer LNCS.</em><br><br><strong>03 · Learning App</strong> — Duolingo-style AI coding platform: Django 5 + Vue 3 + Stripe + RAG + MoE + Docker.<br><br><strong>04 · Document Processing Pipeline</strong> — Async Celery+Redis rewrite, cut processing time by 95%.<br><br>Explore the full portfolio at <a href="./portfolio.html" style="color:var(--accent-bot);font-weight:600">portfolio.html →</a>`
     },
+
+    // 12. RESEARCH & PUBLICATIONS
     {
-      patterns: ['speak', 'language', 'english', 'portuguese', 'french', 'communication'],
-      answer: `Marcelo speaks three languages:<br><br>• 🇧🇷 <strong>Portuguese</strong> — native<br>• 🇬🇧 <strong>English</strong> — professional fluency (works daily with US/UK teams)<br>• 🇫🇷 <strong>French</strong> — professional level`
+      id: 'research',
+      phrases: ['research', 'publication', 'paper', 'published', 'springer', 'lncs', 'ei2n', 'phd', 'doctorate', 'academic'],
+      regexes: [/\b(research|publications?|papers?|published|springer|lncs|ei2n|phd|doctorate|academic)\b/i],
+      answer: `Marcelo is an active researcher in Artificial Intelligence (PhD ongoing at PUCPR) with published work:<br><br>📄 <strong>Springer LNCS (EI2N 2026, IFAC/IFIP):</strong><br><em>"V-JEPA for Self-Supervised Industrial Robot Perception"</em> — Spatiotemporal ViT architecture for label-free kinematic phase discovery on UR5 robots.<br><br>Open source code available on <a href="https://github.com/marcelo-feliciano-filho" target="_blank" style="color:var(--accent-bot)">GitHub →</a>`
     },
+
+    // 13. LEADERSHIP & TEAM MANAGEMENT
     {
-      patterns: ['leadership', 'lead', 'team', 'manage', 'mentor', 'tech lead'],
-      answer: `At <strong>Turing</strong>, Marcelo was Technical Team Lead for ~2 years, leading 6–8 remote engineers.<br><br>His split was <strong>70% coding, 30% leadership</strong> — architecture decisions, code reviews, sprint planning, and unblocking engineers. He stays hands-on as a lead.`
+      id: 'leadership',
+      phrases: ['leadership', 'lead', 'tech lead', 'manage', 'management', 'mentor', 'team lead', 'leading teams'],
+      regexes: [/\b(leadership|tech\s*lead|team\s*lead|lead(ing)?\s*teams?|mentorship|management)\b/i],
+      answer: `As <strong>Technical Team Lead at Turing</strong>, Marcelo led 6–8 distributed engineers on an enterprise healthcare AI platform.<br><br>• <strong>Hands-on Balance:</strong> Maintained a 70% architecture/coding and 30% technical leadership split.<br>• <strong>Responsibilities:</strong> Architecture decisions, code review standards, sprint roadmap, and developer mentoring.`
     },
+
+    // 14. COMPENSATION / RATE / SALARY
     {
-      patterns: ['salary', 'rate', 'compensation', 'pay', 'cost'],
-      answer: `Compensation is best discussed directly. Reach Marcelo on <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a> or <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a>.`
+      id: 'salary',
+      phrases: ['salary', 'rate', 'hourly rate', 'compensation', 'pay', 'cost', 'how much', 'rates'],
+      regexes: [/\b(salary|compensation|hourly\s*rate|rates?|pay(ment)?|pricing|budget)\b/i],
+      answer: `Compensation depends on the engagement structure (W2 contract, 1099, B2B, or direct hire) and role scope.<br><br>Marcelo is open to discussing competitive market rates for Senior/Lead Python, Cloud, and AI roles. Connect directly on <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot);font-weight:600">LinkedIn</a> or <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot);font-weight:600">book a call on Calendly →</a>`
     },
+
+    // 15. LOCATION & TIMEZONE
     {
-      patterns: ['contact', 'reach', 'get in touch', 'linkedin', 'whatsapp', 'message', 'schedule', 'meeting', 'call', 'interview', 'calendly', 'book'],
-      answer: `Best ways to reach Marcelo:<br><br>• 💼 <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a><br>• 💬 <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a><br>• 📅 <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot)">Book a call on Calendly</a><br><br>He typically responds within 24 hours.`
+      id: 'location',
+      phrases: ['location', 'where is he', 'based in', 'timezone', 'brazil', 'curitiba', 'time zone', 'remote timezone'],
+      regexes: [/\b(location|where (is he|does he live)|based|time\s*zone|timezone|curitiba|brazil)\b/i],
+      answer: `Marcelo is based in <strong>Curitiba, Brazil (UTC-3)</strong>.<br><br>He works 100% remote with extensive direct overlap for US (Eastern & Pacific) as well as UK / European working hours.`
     },
+
+    // 16. EDUCATION & DEGREES
     {
-      patterns: ['resume', 'cv', 'curriculum', 'download'],
-      answer: `Download Marcelo's CV:<br><br><a href="./resume.pdf" download style="color:var(--accent-bot); font-weight:600">⬇ Download Resume (PDF)</a>`
+      id: 'education',
+      phrases: ['education', 'degree', 'university', 'college', 'engineering degree', 'academic background'],
+      regexes: [/\b(education|degrees?|university|college|graduat(ed|ion))\b/i],
+      answer: `Marcelo holds dual engineering credentials:<br><br>• 🎓 <strong>Bachelor of Engineering (BE)</strong> — Control & Automation Engineering<br>• 🎓 <strong>Master of Engineering (MEng)</strong> — Systems Engineering<br>• 🔬 <strong>PhD Candidate</strong> — Artificial Intelligence (PUCPR)<br><br>His control systems background enforces strict failure-mode analysis, constraint planning, and test discipline in production software.`
     },
+
+    // 17. LANGUAGES SPOKEN
     {
-      patterns: ['github', 'open source', 'code', 'repository', 'repo'],
-      answer: `Marcelo's GitHub: <a href="https://github.com/marcelo-feliciano-filho" target="_blank" style="color:var(--accent-bot)">github.com/marcelo-feliciano-filho</a><br><br>Key repos: <strong>Learning_App</strong> (Django 5 + Vue 3 + RAG) and <strong>V-JEPA</strong> (published robotics research).`
+      id: 'languages',
+      phrases: ['languages', 'speak english', 'english', 'portuguese', 'french', 'fluent', 'communication'],
+      regexes: [/\b(speak(s)?\s*english|languages?\s*spoken|fluent|english|portuguese|french)\b/i],
+      answer: `Marcelo speaks 3 languages:<br><br>• 🇧🇷 <strong>Portuguese:</strong> Native<br>• 🇺🇸/🇬🇧 <strong>English:</strong> Full professional fluency (daily communication with US/UK teams for 6+ years)<br>• 🇫🇷 <strong>French:</strong> Professional working proficiency.`
     },
+
+    // 18. GITHUB & CODE
     {
-      patterns: ['devops', 'docker', 'aws', 'ci/cd', 'deploy', 'cloud', 'infrastructure'],
-      answer: `Marcelo's deployment stack:<br><br>• <strong>Docker</strong> — containerisation<br>• <strong>AWS ECS</strong> — production deployments<br>• <strong>GitHub Actions</strong> — CI/CD<br>• <strong>Redis · Celery</strong> — async task queues<br>• <strong>Kafka</strong> — event streaming<br><br>He cut deployment time by 95% at A1 Engenharia by redesigning a sync pipeline into async Celery + Redis workers.`
+      id: 'github',
+      phrases: ['github', 'open source', 'code repository', 'github link', 'git repo'],
+      regexes: [/\b(github|open\s*source|repositor(y|ies)|codebase)\b/i],
+      answer: `Check out Marcelo's open-source projects on GitHub:<br><br>🐙 <a href="https://github.com/marcelo-feliciano-filho" target="_blank" style="color:var(--accent-bot);font-weight:600;font-size:0.92rem;">github.com/marcelo-feliciano-filho →</a><br><br>Includes repos for <strong>Learning_App</strong>, <strong>V-JEPA robotics perception</strong>, and backend prototypes.`
     },
+
+    // 19. GREETING (STRICT WORD BOUNDARIES ONLY)
     {
-      patterns: ['why', 'strengths', 'strong', 'good at', 'best', 'standout', 'unique'],
-      answer: `What makes Marcelo stand out:<br><br>• Bridges <strong>backend architecture, AI/RAG systems, and technical leadership</strong> — rare combination<br>• Comes from <strong>control engineering</strong> — systems thinking is core<br>• Ships production AI with measurable results, not just demos<br>• Stays hands-on as a lead (70% coding)<br>• <strong>Published academic paper</strong> in AI/robotics<br>• Fluent in US, UK, and European timezone collaboration`
+      id: 'greeting',
+      phrases: ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy', 'greetings'],
+      regexes: [/^\s*(hi|hello|hey|greetings|howdy|good\s*(morning|afternoon|evening))\b/i, /\b(hello|hi there|hey there)\b/i],
+      answer: `Hello! 👋 I'm Marcelo's recruiter assistant.<br><br>I can answer detailed questions regarding his <strong>7+ years of Python & AI experience</strong>, <strong>technical stack</strong>, <strong>W2 availability</strong>, or help you <strong>schedule an interview</strong>.<br><br>What would you like to explore?`
     },
+
+    // 20. THANKS / PRAISE
     {
-      patterns: ['hello', 'hi', 'hey', 'good morning', 'good afternoon'],
-      answer: `Hey! 👋 I'm Marcelo's recruiter assistant. Ask me about his experience, skills, projects, availability, or how to reach him. Use the chips below to get started!`
-    },
-    {
-      patterns: ['thank', 'thanks', 'great', 'awesome', 'perfect', 'nice'],
-      answer: `Happy to help! Connect with Marcelo directly:<br><br>• 💼 <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a><br>• 💬 <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a>`
-    },
+      id: 'thanks',
+      phrases: ['thank you', 'thanks', 'awesome', 'great', 'cool', 'perfect', 'appreciate it'],
+      regexes: [/\b(thanks?|thank\s*you|awesome|perfect|great|appreciated?)\b/i],
+      answer: `You're welcome! Feel free to connect directly with Marcelo:<br><br>• 💼 <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a><br>• 📅 <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot)">Book a Call on Calendly</a><br>• 💬 <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a>`
+    }
   ];
 
   const SUGGESTIONS = [
     'Tell me about Marcelo',
     'What are his top skills?',
-    'Is he available for hire?',
+    'Is he open to W2 contracts?',
     'What projects has he built?',
-    'Current role and experience?',
+    'Current role at BT?',
     'Book a call with him',
     'Download his CV',
     'Does he speak English?',
   ];
 
-  const FALLBACK = `I'm not sure about that specific detail, but I can help with experience, skills, projects, availability, or contact info.<br><br>Try: <em>"What are his skills?"</em> or <em>"Is he open to new roles?"</em>`;
+  const FALLBACK = `I'd be happy to help with any details regarding Marcelo's software engineering background.<br><br>You can ask about:<br>• <strong>Tech Stack & Skills:</strong> Python, FastAPI, Django, RAG, MCP, AWS, Docker<br>• <strong>Availability:</strong> W2 contracts, remote roles, notice period<br>• <strong>Experience:</strong> BT, Turing (Tech Lead), production RAG pipelines<br>• <strong>Scheduling:</strong> <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot)">Book a call on Calendly →</a> or connect on <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a>`;
 
-  function getAnswer(query) {
-    const q = query.toLowerCase();
-    for (const item of KB) {
-      if (item.patterns.some(p => q.includes(p))) return item.answer;
+  /* ── NLP Match Engine (Strict Boundaries & Priority Scoring) ── */
+  function getAnswer(rawQuery) {
+    const query = (rawQuery || '').trim();
+    if (!query) return FALLBACK;
+
+    // Check guardrails first
+    if (GUARDRAIL_REGEX.test(query)) {
+      return GUARDRAIL_ANSWER;
     }
+
+    const qLower = query.toLowerCase();
+
+    let bestIntent = null;
+    let highestScore = 0;
+
+    for (const intent of INTENTS) {
+      let score = 0;
+
+      // 1. Exact phrase match
+      if (intent.phrases) {
+        for (const phrase of intent.phrases) {
+          if (qLower === phrase) {
+            score += 150;
+          } else if (qLower.includes(phrase)) {
+            score += 40 + phrase.length;
+          }
+        }
+      }
+
+      // 2. Strict regex word-boundary match
+      if (intent.regexes) {
+        for (const rx of intent.regexes) {
+          if (rx.test(query)) {
+            score += 60;
+          }
+        }
+      }
+
+      // De-prioritize greeting if query has multiple substantive words
+      if (intent.id === 'greeting' && score > 0) {
+        const wordCount = query.split(/\s+/).length;
+        if (wordCount > 3) {
+          score = 5; // Demote greeting so actual topic wins
+        }
+      }
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestIntent = intent;
+      }
+    }
+
+    if (bestIntent && highestScore >= 30) {
+      return bestIntent.answer;
+    }
+
     return FALLBACK;
   }
+
 
   /* ── Styles ─────────────────────────────────────────────── */
   const style = document.createElement('style');
