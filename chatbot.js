@@ -8,15 +8,15 @@
   const KB = [
     {
       patterns: ['who are you', 'tell me about yourself', 'introduce yourself', 'about marcelo', 'who is marcelo', 'background'],
-      answer: `Hi! I'm the assistant for <strong>Marcelo Feliciano Filho</strong> — a Senior Software Engineer with 7 years of production experience.<br><br>Marcelo specialises in <strong>Python backend systems</strong>, <strong>AI/RAG pipelines</strong>, and <strong>cloud-native architecture</strong>. Currently working at <strong>BT (British Telecom)</strong> in London (remote) on their NaaS platform. Previously Technical Team Lead at Turing, leading 6–8 engineers on a healthcare AI platform.<br><br>Ask me anything — experience, skills, projects, or how to reach him!`
+      answer: `Hi! I'm the assistant for <strong>Marcelo Feliciano Filho</strong> — a Senior Software Engineer with <strong>7+ years of production experience</strong>.<br><br>Marcelo specialises in <strong>Python backend systems</strong>, <strong>AI/RAG pipelines</strong>, and <strong>cloud-native architecture</strong>. Currently working at <strong>BT (British Telecom)</strong> on their NaaS platform. Previously Technical Team Lead at Turing, leading 6–8 engineers on a healthcare AI platform.<br><br>He is available for <strong>W2 contracts</strong>, direct-hire remote roles, and consulting engagements.`
     },
     {
       patterns: ['current role', 'current job', 'where does he work', 'working now', 'bt ', 'british telecom', 'naas'],
-      answer: `Marcelo is currently a <strong>Senior Software Engineer at BT (British Telecommunications)</strong>, working remotely from Brazil on their NaaS (Network as a Service) platform.<br><br>His focus there includes diagnosing and resolving production issues — idempotency failures, throughput bottlenecks, and SOAK testing against real field devices under sustained load on high-availability telecom infrastructure.`
+      answer: `Marcelo is currently a <strong>Senior Software Engineer at BT (British Telecommunications)</strong>, working remotely on their NaaS (Network as a Service) platform.<br><br>His focus there includes diagnosing and resolving production issues — idempotency failures, throughput bottlenecks, and SOAK testing against real field devices under sustained load on high-availability telecom infrastructure.`
     },
     {
       patterns: ['experience', 'years', 'how long', 'career', 'history', 'worked'],
-      answer: `Marcelo has <strong>7 years of professional software engineering experience</strong>:<br><br>• <strong>BT</strong> — Sr. Software Engineer (present, ~1 year)<br>• <strong>Turing</strong> — Technical Team Lead (~2 years)<br>• <strong>Turing</strong> — Senior Software Engineer (~1.5 years)<br>• <strong>Dayway</strong> — Software Engineering Specialist (~1 year)<br>• <strong>LACTEC</strong> — Senior Software Developer (~7 months)<br>• <strong>A1 Engenharia</strong> — Junior → Developer II (~2 years)<br><br>He was promoted twice in 18 months at his first job.`
+      answer: `Marcelo has <strong>7+ years of professional software engineering experience</strong>:<br><br>• <strong>BT</strong> — Sr. Software Engineer (present, ~1 year)<br>• <strong>Turing</strong> — Technical Team Lead (~2 years)<br>• <strong>Turing</strong> — Senior Software Engineer (~1.5 years)<br>• <strong>Dayway</strong> — Software Engineering Specialist (~1 year)<br>• <strong>LACTEC</strong> — Senior Software Developer (~7 months)<br>• <strong>A1 Engenharia</strong> — Junior → Developer II (~2 years)<br><br>He was promoted twice in 18 months at his first job.`
     },
     {
       patterns: ['skills', 'tech stack', 'technologies', 'programming', 'tools', 'what can he do', 'expertise', 'python', 'django', 'fastapi', 'vue'],
@@ -39,8 +39,8 @@
       answer: `Marcelo published research at <strong>EI2N 2026 (IFAC/IFIP, Springer LNCS)</strong>:<br><br><em>"V-JEPA for Self-Supervised Industrial Robot Perception"</em> — spatiotemporal ViT encoder, EMA target encoding (τ=0.996). Discovers 5 kinematic phases with <strong>zero labels</strong>.<br><br>Open source on <a href="https://github.com/marcelo-feliciano-filho" target="_blank" style="color:var(--accent-bot)">GitHub →</a>`
     },
     {
-      patterns: ['available', 'availability', 'open to', 'hire', 'hiring', 'opportunity', 'remote', 'relocate', 'freelance'],
-      answer: `Marcelo is <strong>open to remote opportunities</strong> globally.<br><br>He works fully remote from Curitiba, Brazil (UTC-3) and has proven experience with remote-first teams across the US and UK.<br><br>You can book a call directly: <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot)">📅 Calendly</a> — or reach out via <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a> or <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a>.`
+      patterns: ['available', 'availability', 'open to', 'hire', 'hiring', 'opportunity', 'remote', 'relocate', 'freelance', 'w2', 'contract', 'b2b', 'c2c', 'full-time'],
+      answer: `Marcelo is <strong>available for W2 contracts, direct remote full-time positions, and B2B engagements</strong> globally.<br><br>He works fully remote from Curitiba, Brazil (UTC-3) with extensive experience leading and delivering for US and UK teams.<br><br>You can book a call directly: <a href="https://calendly.com/marcelo-feliciano-f" target="_blank" style="color:var(--accent-bot)">📅 Calendly</a> — or reach out via <a href="https://www.linkedin.com/in/marcelo-feliciano-filho-731504182/" target="_blank" style="color:var(--accent-bot)">LinkedIn</a> or <a href="https://shorturl.at/VNQv3" target="_blank" style="color:var(--accent-bot)">WhatsApp</a>.`
     },
     {
       patterns: ['location', 'where', 'based', 'timezone', 'brazil', 'curitiba'],
@@ -323,9 +323,36 @@
     });
   }
 
+  function openChat(query) {
+    if (!isOpen) {
+      isOpen = true;
+      win.classList.add('open');
+      btn.innerHTML = '✕';
+      if (!msgs.children.length) init();
+    }
+    if (query && typeof query === 'string' && query.trim()) {
+      input.value = query.trim();
+      handleSend();
+    } else {
+      input.focus();
+    }
+  }
+
+  window.openRecruiterChat = openChat;
+
+  document.addEventListener('click', function (e) {
+    const trigger = e.target.closest('[data-chat-query], .open-chat-trigger');
+    if (trigger) {
+      e.preventDefault();
+      const q = trigger.getAttribute('data-chat-query') || trigger.getAttribute('data-query') || '';
+      openChat(q);
+    }
+  });
+
   btn.addEventListener('click', toggleChat);
   close.addEventListener('click', toggleChat);
   send.addEventListener('click', handleSend);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') handleSend(); });
 
 })();
+
